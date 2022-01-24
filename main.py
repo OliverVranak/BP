@@ -1,23 +1,26 @@
-from stegano import *
-import base64
+from tools.encode_file import *
+from tools.reveal_file import *
 
-#opens binary file and encypts it with base64
-with open("./bigrams","rb") as bin_file:
-    encoded_string = base64.b64encode(bin_file.read())
+def switch(choice):
+    if choice == 1:
+        encode_file_into_picture()
+    elif choice == 2:
+        reveal_file_from_picture()
+    elif choice == 3:
+        sys.exit(0)
+    else:
+        sys.exit(0)
 
-message = encoded_string.decode()
-print(message)
-#hiding string into png file using LSB technique
-secret = lsb.hide("./image.png",message)
-#saving the picture containing the message
-secret.save("./secret_image.png")
+if __name__ == "__main__":
+    while True:
+        print("\n\nChoose from one of the options:")
+        print("     1)Encode file into picture")
+        print("     2)Reveal file from a picture")
+        print("     3)Reveal and Analyze file from a picture")
+        print("     4)Exit")
+        choice = int(input("Input:  "))
 
-#exctracting the file from picture
-output = lsb.reveal("./secret_image.png")
-output += "==="
-#decoding back to binary from base64
-output = base64.b64decode(output)
-#writing binary into a file
-with open("./secret","wb") as file:
-    file.write(output)
-print(output)
+        switch(choice)
+
+
+

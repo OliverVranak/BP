@@ -7,9 +7,11 @@ def encode_file_into_picture():
     filename = input("Enter file: ")
     image = input("Enter picture: ")
     try:
+        #opening file to be encoded
         with open(filename, "rb") as bin_file:
             encoded_string = base64.b64encode(bin_file.read())
 
+        #converting encoded_string into string
         message = encoded_string.decode()
         time.sleep(0.5)
         print("\nEncoding...",end="")

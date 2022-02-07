@@ -1,3 +1,5 @@
+import hashlib
+
 from stegano import *
 import base64
 import sys
@@ -12,13 +14,17 @@ def reveal_file_from_picture():
         print("Extracting file...")
         time.sleep(2)
         output = lsb.reveal(image)
-        output += "==="
-        # decoding back to binary from base64
-        output = base64.b64decode(output)
-        # writing binary into a file
-        print("\n -> File extracted as secret_file <-")
-        with open("secret_file", "wb") as file:
-            file.write(output)
+        if output != None:
+            output += "==="
+            # decoding back to binary from base64
+            output = base64.b64decode(output)
+            # writing binary into a file
+
+            print("\n -> File extracted as secret_file <-")
+            with open("secret_file", "wb") as file:
+                file.write(output)
+        else:
+            print("\n-> No file found <-")
     except FileNotFoundError:
         print("Error, while extracting file!")
         sys.exit(0)

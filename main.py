@@ -9,7 +9,7 @@ def switch(choice):
     elif choice == 2:
         reveal_file_from_picture()
     elif choice == 3:
-        VT_analysis()
+        analyze()
     else:
         sys.exit(0)
 
@@ -18,7 +18,7 @@ if __name__ == "__main__":
         print("\n\nChoose from the options below:")
         print("     1)Encode file into picture")
         print("     2)Reveal file from a picture")
-        print("     3)Reveal and Analyze file from a picture")
+        print("     3)Analyze picture")
         print("     4)Exit")
         choice = int(input("Input:  "))
 

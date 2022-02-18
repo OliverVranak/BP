@@ -32,9 +32,11 @@ def check_file_header(file):
 
     if len(file_type) == 0:
         print("\n-> No header found. <-\n")
+
     else:
         print("File has match with: ", end=" ")
         for i in file_type:
             print(i, end=" ")
     print()
+
 

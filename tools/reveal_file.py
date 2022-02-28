@@ -23,6 +23,7 @@ def reveal_file_from_picture():
             print("\n -> File extracted as secret_file <-")
             with open("secret_file", "wb") as file:
                 file.write(output)
+            file.close()
         else:
             print("\n-> No file found <-")
     except FileNotFoundError:

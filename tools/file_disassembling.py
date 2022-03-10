@@ -4,8 +4,9 @@ from elftools.elf.elffile import ELFFile
 from capstone import *
 
 
-def opcodes_frequency(list_of_opcodes,length):
+def opcodes_frequency(list_of_opcodes):
     dictionary = dict()
+    length = len(list_of_opcodes)
     # counting number of ocurrencies
     for i in list_of_opcodes:
         if i in dictionary:
@@ -63,7 +64,7 @@ def disassemble(exe):
             list_of_opcode.append(i.mnemonic)
         start = max(int(last_address), start) + last_size + 1
         if start >= end:
-            opcodes_frequency(list_of_opcode, len(data))
+            opcodes_frequency(list_of_opcode)
             break
 
 
@@ -99,7 +100,8 @@ def disassembling_analysis():
                 for i in md.disasm(ops, addr):
                     print(f'0x{i.address:x}:\t{i.mnemonic}\t{i.op_str}')
                     list_of_opcodes.append(i.mnemonic)
-                opcodes_frequency(list_of_opcodes,len(ops))
+
+                opcodes_frequency(list_of_opcodes)
             # if file is of different type
             else:
                 md = Cs(CS_ARCH_X86, CS_MODE_64)
@@ -108,4 +110,4 @@ def disassembling_analysis():
                 for i in md.disasm(output, 0x0000000):
                     print("0x%x:\t%s\t%s" % (i.address, i.mnemonic, i.op_str))
                     list_of_opcodes.append(i.mnemonic)
-                opcodes_frequency(list_of_opcodes,len(output))
+                opcodes_frequency(list_of_opcodes)

@@ -1,10 +1,6 @@
 import time
-def check_file_header(file):
 
-    print("\nChecking file header for known types...")
-    time.sleep(1)
-    #dictinary list of file extensions and its signatures
-    magic_numbers = {
+magic_numbers = {
                  'png': bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
                  'jpg': bytes([0xFF, 0xD8, 0xFF, 0xE0]),
                  'BMP': bytes([0x42, 0x4D]),
@@ -24,6 +20,14 @@ def check_file_header(file):
                  'pcap': bytes([0xA1, 0xB2, 0x3C, 0x4D]),
                  'txt': bytes([0xEF, 0xBB, 0xBF]),
                  }
+
+
+def check_file_header(file):
+
+    print("\nChecking file header for known types...")
+    time.sleep(1)
+    #dictinary list of file extensions and its signatures
+
     file_type = list()
     #iterating through file signatures
     for i in magic_numbers:

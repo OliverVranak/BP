@@ -14,18 +14,21 @@ def reveal_file_from_picture():
         print("Extracting file...")
         time.sleep(2)
         output = lsb.reveal(image)
-        if output != None:
+        try:
             output += "==="
             # decoding back to binary from base64
             output = base64.b64decode(output)
             # writing binary into a file
+        except:
+            print("File Not Found\n")
+            print("Bytes exctracted\n")
+            output = bytes(output,'utf-8')
 
-            print("\n -> File extracted as secret_file <-")
-            with open("secret_file", "wb") as file:
-                file.write(output)
-            file.close()
-        else:
-            print("\n-> No file found <-")
+        print("\n -> Saved as secret_file <-")
+        with open("secret_file", "wb") as file:
+            file.write(output)
+        file.close()
+
     except FileNotFoundError:
         print("Error, while extracting file!")
         sys.exit(0)

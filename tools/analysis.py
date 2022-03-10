@@ -46,35 +46,36 @@ def analyze():
     time.sleep(2)
     try:
         output = lsb.reveal(image)
-        if output != None:
+        try:
             output += "==="
             # decoding back to binary from base64
             output = base64.b64decode(output)
             # writing binary into a file
+        except:
+            print("File Not Found\n")
+            print("Bytes exctracted\n")
+            output = bytes(output, 'utf-8')
 
-            print("\n -> File extracted as secret_file <-")
-            with open("secret_file", "wb") as file:
-                file.write(output)
-            file.close()
+        print("\n -> Saved as secret_file <-")
+        with open("secret_file", "wb") as file:
+            file.write(output)
+        file.close()
 
-            print("\n->Analyzing secret_file<-")
+        print("\n->Analyzing secret_file<-")
 
-            check_file_header(output)
+        check_file_header(output)
+        time.sleep(1)
 
-            time.sleep(1)
+        VT_hash_scan(output)
+        print()
+        print("=> Calculating frequency of opcodes...\n")
+        time.sleep(1)
+        opcodes_frequency(output)
+        print()
+        print("=> Disassembling...\n\n")
 
-            VT_hash_scan(output)
-            print()
-            print("=> Calculating frequency of opcodes...\n")
-            time.sleep(1)
-            opcodes_frequency(output)
-            print()
-            print("=> Disassembling...\n\n")
+        disassembling_analysis()
 
-            disassembling_analysis()
-
-        else:
-            print("\n-> No file found <-")
     except FileNotFoundError:
         print("\nError, while extracting file!\n")
 

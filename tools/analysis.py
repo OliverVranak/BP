@@ -41,8 +41,8 @@ def opcodes_frequency(output):
         print(f"{i} : {j * 100 / len(output)}%")
 
 def analyze():
-    image = input("Enter image: ")
-    print("Extracting file...")
+    image = input("[->] Enter image: ")
+    print("[*] Extracting file...")
     time.sleep(2)
     try:
         output = lsb.reveal(image)
@@ -52,32 +52,32 @@ def analyze():
             output = base64.b64decode(output)
             # writing binary into a file
         except:
-            print("File Not Found\n")
-            print("Bytes exctracted\n")
+            print("[+] File Not Found\n")
+            print("[+] Bytes exctracted from empty image.\n")
             output = bytes(output, 'utf-8')
 
-        print("\n -> Saved as secret_file <-")
+        print("\n[+] Saved as secret_file")
         with open("secret_file", "wb") as file:
             file.write(output)
         file.close()
 
-        print("\n->Analyzing secret_file<-")
+        print("\n[*] Analyzing secret_file")
 
         check_file_header(output)
         time.sleep(1)
 
         VT_hash_scan(output)
         print()
-        print("=> Calculating frequency of opcodes...\n")
+        print("[*] Calculating frequency of opcodes...\n")
         time.sleep(1)
         opcodes_frequency(output)
         print()
-        print("=> Disassembling...\n\n")
+        print("[*] Disassembling...\n\n")
 
         disassembling_analysis()
 
     except FileNotFoundError:
-        print("\nError, while extracting file!\n")
+        print("\n[+] Error, while extracting file!\n")
 
 
 

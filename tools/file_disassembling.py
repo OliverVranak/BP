@@ -79,7 +79,7 @@ def disassembling_analysis():
         try:
             disassemble(exe)
         except:
-            print('Error occurred while disassembling the file\n')
+            print('[+] Error occurred while disassembling the file\n')
     except:
         # ELF file header
         header = b"\x7f\x45\x4c\x46"

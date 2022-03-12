@@ -16,10 +16,10 @@ def switch(choice):
 if __name__ == "__main__":
     while True:
         print("\n\nChoose from the options below:")
-        print("     1)Encode file into picture")
-        print("     2)Reveal file from a picture")
-        print("     3)Analyze picture")
-        print("     4)Exit")
+        print("     [1] Encode file into picture")
+        print("     [2] Reveal file from a picture")
+        print("     [3] Analyze picture")
+        print("     [4] Exit")
         choice = int(input("Input:  "))
 
         switch(choice)

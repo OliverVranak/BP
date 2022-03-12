@@ -24,7 +24,7 @@ magic_numbers = {
 
 def check_file_header(file):
 
-    print("\nChecking file header for known types...")
+    print("\n[*] Checking file header for known types...")
     time.sleep(1)
     #dictinary list of file extensions and its signatures
 
@@ -35,10 +35,10 @@ def check_file_header(file):
             file_type.append(i)
 
     if len(file_type) == 0:
-        print("\n-> No header found. <-\n")
+        print("\n[+] No header found.\n")
 
     else:
-        print("File has match with: ", end=" ")
+        print("[+] File has match with: ", end=" ")
         for i in file_type:
             print(i, end=" ")
     print()

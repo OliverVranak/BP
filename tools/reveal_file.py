@@ -7,11 +7,11 @@ import time
 
 
 def reveal_file_from_picture():
-    image = input("Enter image: ")
+    image = input("[->] Enter image: ")
     try:
         # exctracting the file from picture
         time.sleep(1)
-        print("Extracting file...")
+        print("[*] Extracting file...")
         time.sleep(2)
         output = lsb.reveal(image)
         try:
@@ -20,11 +20,11 @@ def reveal_file_from_picture():
             output = base64.b64decode(output)
             # writing binary into a file
         except:
-            print("File Not Found\n")
-            print("Bytes exctracted\n")
+            print("[+] File Not Found\n")
+            print("[+] Bytes exctracted from empty image.\n")
             output = bytes(output,'utf-8')
 
-        print("\n -> Saved as secret_file <-")
+        print("\n[+] Saved as secret_file")
         with open("secret_file", "wb") as file:
             file.write(output)
         file.close()

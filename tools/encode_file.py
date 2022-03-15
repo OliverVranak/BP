@@ -2,10 +2,16 @@ from stegano import *
 import base64
 import sys
 import time
-
+import os
 def encode_file_into_picture():
     filename = input("[->] Enter file: ")
     image = input("[->] Enter picture: ")
+
+    #checking if file is bigger than image
+    if os.stat(filename).st_size >= os.stat(image).st_size:
+        print("[+] File is bigger than image.")
+        exit()
+
     try:
         #opening file to be encoded
         with open(filename, "rb") as bin_file:

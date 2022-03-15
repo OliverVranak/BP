@@ -1,7 +1,21 @@
-import time
+import pickle
 import pefile
 from elftools.elf.elffile import ELFFile
 from capstone import *
+
+def capstone_predict(predict):
+    with open("pickle_model_capstone.pkl", 'rb') as file:
+        pickle_model = pickle.load(file)
+
+    file_predict = pickle_model.predict([predict])
+    if file_predict[0] == 0:
+        print("Capstone Goodware")
+        return 0
+    else:
+        print("Capstone Malware")
+        return 1
+
+
 
 
 def opcodes_frequency_capstone(list_of_opcodes):
@@ -16,8 +30,6 @@ def opcodes_frequency_capstone(list_of_opcodes):
     # sorting ocurrencies
     dictionary = sorted(dictionary.items(), key=lambda v: v[1], reverse=True)
     dic3 = dict(dictionary)
-    for i, j in dic3.items():
-        print(f"{i} : {j * 100 / length}%")
     return dic3
 
 # function takes list of file section and the adrres of the first section
@@ -59,7 +71,6 @@ def disassemble(exe):
         # parse section with main code
         data = exe.get_memory_mapped_image()[start:end]
         for i in md.disasm(data, start):
-            print(i)
             last_address = int(i.address)
             last_size = i.size
             list_of_opcode.append(i.mnemonic)
@@ -73,7 +84,6 @@ def disassemble(exe):
 # https://isleem.medium.com/create-your-own-disassembler-in-python-pefile-capstone-754f863b2e1c
 def disassembling_analysis(name):
     file_to_analyze = name
-    time.sleep(2)
     try:
         # if file is of type PE
         exe = pefile.PE(file_to_analyze)
@@ -83,33 +93,6 @@ def disassembling_analysis(name):
         except:
             print('[+] Error occurred while disassembling the file\n')
     except:
-        # ELF file header
-        header = b"\x7f\x45\x4c\x46"
-        list_of_opcodes = list()
-        with open(file_to_analyze, "rb") as f:
-            output = f.read()
-            # checks if our output contains ELF header
-            if output.startswith(header):
-                # parsing elf file
-                elf = ELFFile(f)
-                code = elf.get_section_by_name('.text')
-                ops = code.data()
-                addr = code['sh_addr']
-                # defining architecture we want to use
-                md = Cs(CS_ARCH_X86, CS_MODE_64)
-                md.syntax = CS_OPT_SYNTAX_INTEL
-                # disassembling file from addr till end of file
-                for i in md.disasm(ops, addr):
-                    print(f'0x{i.address:x}:\t{i.mnemonic}\t{i.op_str}')
-                    list_of_opcodes.append(i.mnemonic)
+        print("File is of different type than PE")
+        exit()
 
-                return list_of_opcodes
-            # if file is of different type
-            else:
-                md = Cs(CS_ARCH_X86, CS_MODE_64)
-                md.syntax = CS_OPT_SYNTAX_INTEL
-                # disassembling from the begging of file
-                for i in md.disasm(output, 0x0000000):
-                    print("0x%x:\t%s\t%s" % (i.address, i.mnemonic, i.op_str))
-                    list_of_opcodes.append(i.mnemonic)
-                return list_of_opcodes

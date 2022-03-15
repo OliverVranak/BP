@@ -14,8 +14,8 @@ def compare_technique(output):
     transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq, len_list_opcodes)
     comparing_predict(transformed_list)
 
-def capstone_technique():
-    list_of_opcodes = disassembling_analysis()
+def capstone_technique(output):
+    list_of_opcodes = disassembling_analysis(output)
     len_list_of_opcodes = len(list_of_opcodes)
     dictionary_of_opcode_freq = calculate_freq(list_of_opcodes)
 
@@ -40,7 +40,10 @@ def analyze():
             output = bytes(output, 'utf-8')
 
         print("\n[+] Saved as secret_file")
-        with open("secret_file", "wb") as file:
+        name = "secret" + image
+        #strip .png
+        name = name[:-4]
+        with open(name, "wb") as file:
             file.write(output)
         file.close()
 
@@ -56,7 +59,7 @@ def analyze():
         compare_technique(output)
         print()
         print("[*] Disassembling...\n\n")
-        capstone_technique()
+        capstone_technique(name)
 
     except FileNotFoundError:
         print("\n[+] Error, while extracting file!\n")

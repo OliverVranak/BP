@@ -4,7 +4,7 @@ from elftools.elf.elffile import ELFFile
 from capstone import *
 
 
-def opcodes_frequency(list_of_opcodes):
+def opcodes_frequency_capstone(list_of_opcodes):
     dictionary = dict()
     length = len(list_of_opcodes)
     # counting number of ocurrencies
@@ -18,6 +18,7 @@ def opcodes_frequency(list_of_opcodes):
     dic3 = dict(dictionary)
     for i, j in dic3.items():
         print(f"{i} : {j * 100 / length}%")
+    return dic3
 
 # function takes list of file section and the adrres of the first section
 def get_main_code_section(sections, base_of_code):
@@ -64,7 +65,7 @@ def disassemble(exe):
             list_of_opcode.append(i.mnemonic)
         start = max(int(last_address), start) + last_size + 1
         if start >= end:
-            opcodes_frequency(list_of_opcode)
+            return list_of_opcode
             break
 
 
@@ -77,7 +78,8 @@ def disassembling_analysis():
         # if file is of type PE
         exe = pefile.PE(file_to_analyze)
         try:
-            disassemble(exe)
+            list_of_opcodes = disassemble(exe)
+            return list_of_opcodes
         except:
             print('[+] Error occurred while disassembling the file\n')
     except:
@@ -101,7 +103,7 @@ def disassembling_analysis():
                     print(f'0x{i.address:x}:\t{i.mnemonic}\t{i.op_str}')
                     list_of_opcodes.append(i.mnemonic)
 
-                opcodes_frequency(list_of_opcodes)
+                return list_of_opcodes
             # if file is of different type
             else:
                 md = Cs(CS_ARCH_X86, CS_MODE_64)
@@ -110,4 +112,4 @@ def disassembling_analysis():
                 for i in md.disasm(output, 0x0000000):
                     print("0x%x:\t%s\t%s" % (i.address, i.mnemonic, i.op_str))
                     list_of_opcodes.append(i.mnemonic)
-                opcodes_frequency(list_of_opcodes)
+                return list_of_opcodes

@@ -1,18 +1,17 @@
-import hashlib
-
 from stegano import *
 import base64
-import sys
-import time
+from os.path import exists
+from datetime import datetime
 
 
 def reveal_file_from_picture():
-    image = input("[->] Enter image: ")
+    image = input("\n[->] Enter image: ")
+    if not exists(image):
+        print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Image was not found!")
+        return
     try:
         # exctracting the file from picture
-        time.sleep(1)
-        print("[*] Extracting file...")
-        time.sleep(2)
+        print("[*][" + datetime.now().strftime("%H:%M:%S") + "] Extracting...")
         output = lsb.reveal(image)
         try:
             output += "==="
@@ -20,15 +19,15 @@ def reveal_file_from_picture():
             output = base64.b64decode(output)
             # writing binary into a file
         except:
-            print("[+] File Not Found\n")
-            print("[+] Bytes exctracted from empty image.\n")
-            output = bytes(output,'utf-8')
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Nothing has been found!\n")
+            return
 
-        print("\n[+] Saved as secret_file")
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File saved as secret_file")
         with open("secret_file", "wb") as file:
             file.write(output)
         file.close()
 
-    except FileNotFoundError:
-        print("Error, while extracting file!")
-        sys.exit(0)
+    except Exception as e:
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Error while extracting file!")
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] " + str(e))
+        return

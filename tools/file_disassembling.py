@@ -1,10 +1,16 @@
-import time
+import os
+from datetime import datetime
+import pandas as pd
 import pefile
 from elftools.elf.elffile import ELFFile
 from capstone import *
+from os.path import exists
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 def opcodes_frequency_capstone(list_of_opcodes):
+    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] The most frequent opcodes:\n")
     dictionary = dict()
     length = len(list_of_opcodes)
     # counting number of ocurrencies
@@ -16,8 +22,25 @@ def opcodes_frequency_capstone(list_of_opcodes):
     # sorting ocurrencies
     dictionary = sorted(dictionary.items(), key=lambda v: v[1], reverse=True)
     dic3 = dict(dictionary)
+    count = 0
+    top_10_opcodes = list()
+    top_10_percentage = list()
     for i, j in dic3.items():
-        print(f"{i} : {j * 100 / length}%")
+        top_10_opcodes.append(i)
+        top_10_percentage.append(j * 100 / length)
+        print(f"\t{i} : {j * 100 / length}%")
+        count += 1
+        if count == 10:
+            break
+    #creating bar plot to visualize the frequency
+    df = pd.DataFrame({"Opcodes":top_10_opcodes,"Percentage":top_10_percentage})
+    plt.figure(figsize=(10,6))
+    plt.bar('Opcodes','Percentage',data=df)
+    plt.xlabel('Opcodes',size=10)
+    plt.ylabel('Percentage',size=10)
+    plt.title("The most frequent opcodes",size=15)
+    plt.savefig('the_most_frequent_opcodes.png')
+    print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Bar plot saved as the_most_frequent_opcodes.png\n")
     return dic3
 
 # function takes list of file section and the adrres of the first section
@@ -55,25 +78,29 @@ def disassemble(exe):
     # defining the end of main part
     end = start + main_code.SizeOfRawData
     list_of_opcode = list()
+    if exists("secret_file_disassemble.txt"):
+        os.remove("secret_file_disassemble.txt")
     while True:
         # parse section with main code
         data = exe.get_memory_mapped_image()[start:end]
         for i in md.disasm(data, start):
-            print(i)
+            text = "0x{}:\t{}\t{}\n".format(i.address,i.mnemonic,i.op_str)
+            with open("secret_file_disassemble.txt","a+") as file:
+                file.write(text)
+            file.close()
             last_address = int(i.address)
             last_size = i.size
             list_of_opcode.append(i.mnemonic)
         start = max(int(last_address), start) + last_size + 1
         if start >= end:
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble\n")
             return list_of_opcode
-            break
 
 
 # inspired by
 # https://isleem.medium.com/create-your-own-disassembler-in-python-pefile-capstone-754f863b2e1c
 def disassembling_analysis(name):
     file_to_analyze = name
-    time.sleep(2)
     try:
         # if file is of type PE
         exe = pefile.PE(file_to_analyze)
@@ -81,7 +108,8 @@ def disassembling_analysis(name):
             list_of_opcodes = disassemble(exe)
             return list_of_opcodes
         except:
-            print('[+] Error occurred while disassembling the file\n')
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Error occurred while disassembling the file\n")
+            return
     except:
         # ELF file header
         header = b"\x7f\x45\x4c\x46"
@@ -99,17 +127,29 @@ def disassembling_analysis(name):
                 md = Cs(CS_ARCH_X86, CS_MODE_64)
                 md.syntax = CS_OPT_SYNTAX_INTEL
                 # disassembling file from addr till end of file
+                if exists("secret_file_disassemble.txt"):
+                    os.remove("secret_file_disassemble.txt")
                 for i in md.disasm(ops, addr):
-                    print(f'0x{i.address:x}:\t{i.mnemonic}\t{i.op_str}')
+                    text = "0x{}:\t{}\t{}\n".format(i.address, i.mnemonic, i.op_str)
+                    with open("secret_file_disassemble.txt", "a+") as file:
+                        file.write(text)
+                    file.close()
                     list_of_opcodes.append(i.mnemonic)
 
+                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble\n")
                 return list_of_opcodes
-            # if file is of different type
+            # if file is of different type or unknown type
             else:
                 md = Cs(CS_ARCH_X86, CS_MODE_64)
                 md.syntax = CS_OPT_SYNTAX_INTEL
                 # disassembling from the begging of file
-                for i in md.disasm(output, 0x0000000):
-                    print("0x%x:\t%s\t%s" % (i.address, i.mnemonic, i.op_str))
+                if exists("secret_file_disassemble.txt"):
+                    os.remove("secret_file_disassemble.txt")
+                for i in md.disasm(output, 0x000000):
+                    text = "0x{}:\t{}\t{}\n".format(i.address, i.mnemonic, i.op_str)
+                    with open("secret_file_disassemble.txt", "a+") as file:
+                        file.write(text)
+                    file.close()
                     list_of_opcodes.append(i.mnemonic)
+                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble\n")
                 return list_of_opcodes

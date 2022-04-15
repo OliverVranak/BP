@@ -1,7 +1,6 @@
 from tools.encode_file import *
-from tools.reveal_file import *
-from tools.virus_total import *
 from tools.analysis import *
+from datetime import datetime
 
 def switch(choice):
     if choice == 1:
@@ -10,19 +9,33 @@ def switch(choice):
         reveal_file_from_picture()
     elif choice == 3:
         analyze()
+    elif choice == 4:
+        print("\n")
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Shutting down...")
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Good Bye.")
+        exit(0)
     else:
-        sys.exit(0)
+        print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Such option does not exist. Please try again")
+        start()
 
-if __name__ == "__main__":
+def start():
+
     while True:
-        print("\n\nChoose from the options below:")
+        print("\n\nChoose from the options below:\n")
         print("     [1] Encode file into picture")
         print("     [2] Reveal file from a picture")
         print("     [3] Analyze picture")
         print("     [4] Exit")
-        choice = int(input("Input:  "))
+        try:
+            choice = int(input("\nInput:  "))
+            switch(choice)
+        except ValueError:
+            print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Only numbers are allowed!")
+            start()
 
-        switch(choice)
+if __name__ == "__main__":
+    print("\n_________ IMAGE SCANNER _________")
+    start()
 
 
 

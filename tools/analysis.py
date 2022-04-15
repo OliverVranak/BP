@@ -4,29 +4,36 @@ from tools.virus_total import *
 from tools.file_signatures import *
 from tools.file_disassembling import *
 from tools.compare_opcodes import *
+from datetime import datetime
+from os.path import exists
+import struct
+
 
 def compare_technique(output):
     list_of_opcodes = opcodes_frequency(output)
     len_list_opcodes = len(list_of_opcodes)
     dictionary_of_opcode_freq = calculate_freq(list_of_opcodes)
 
-    print("[*] Predicting...")
+    print("[*] Predicting...\n")
     transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq, len_list_opcodes)
     comparing_predict(transformed_list)
 
 def capstone_technique(output):
     list_of_opcodes = disassembling_analysis(output)
     len_list_of_opcodes = len(list_of_opcodes)
-    dictionary_of_opcode_freq = calculate_freq(list_of_opcodes)
+    dictionary_of_opcode_freq = opcodes_frequency_capstone(list_of_opcodes)
 
-    print("[*] Predicting...")
+    print("\n[*][" + datetime.now().strftime("%H:%M:%S") + "] Predicting...")
     transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq,len_list_of_opcodes)
     capstone_predict(transformed_list)
 
 def analyze():
-    image = input("[->] Enter image: ")
-    print("[*] Extracting file...")
-    time.sleep(2)
+    image = input("\n[->] Enter picture: ")
+    if not exists(image):
+        print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Image was not found!")
+        return
+
+    print("[*][" + datetime.now().strftime("%H:%M:%S") + "] Extracting...")
     try:
         output = lsb.reveal(image)
         try:
@@ -35,34 +42,34 @@ def analyze():
             output = base64.b64decode(output)
             # writing binary into a file
         except:
-            print("[+] File Not Found\n")
-            print("[+] Bytes exctracted from empty image.\n")
-            output = bytes(output, 'utf-8')
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Nothing has been found!\n")
+            return
 
-        print("\n[+] Saved as secret_file")
-        name = "secret" + image
-        #strip .png
-        name = name[:-4]
-        with open(name, "wb") as file:
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File saved as secret_file")
+        name_of_file = "secret_file"
+        with open(name_of_file, "wb") as file:
             file.write(output)
         file.close()
 
-        print("\n[*] Analyzing secret_file")
+        print("\n[*][" + datetime.now().strftime("%H:%M:%S") + "] Analyzing secret_file...")
+        # checking for filetypes
+        # in case it is an executable or unknown filetype, we continue with analysis
+        if check_filetype(output):
+            VT_hash_scan(output)
 
-        check_file_header(output)
-        time.sleep(1)
+            # this algorithm was not that effective at the end so we will not use it anymore
+            #compare_technique(output)
 
-        VT_hash_scan(output)
-        print()
-        print("[*] Calculating frequency of opcodes...\n")
-        time.sleep(1)
-        compare_technique(output)
-        print()
-        print("[*] Disassembling...\n\n")
-        capstone_technique(name)
+            print("\n[*][" + datetime.now().strftime("%H:%M:%S") + "] Disassembling...")
+            capstone_technique(name_of_file)
+            print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] End of Analysis")
+        else:
+            print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] End of Analysis")
 
-    except FileNotFoundError:
-        print("\n[+] Error, while extracting file!\n")
+    except Exception as e:
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Error while extracting file!")
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] " + str(e))
+        return
 
 
 

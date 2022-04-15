@@ -3,18 +3,51 @@ import pefile
 from elftools.elf.elffile import ELFFile
 from capstone import *
 
+def capstone_success_counter():
+    if not hasattr(capstone_success_counter,"counter"):
+        capstone_success_counter.counter = 0
+    capstone_success_counter.counter += 1
+    return capstone_success_counter.counter
+
+
 def capstone_predict(predict):
-    with open("pickle_model_capstone.pkl", 'rb') as file:
-        pickle_model = pickle.load(file)
+    with open("pickle_model_capstone_decision_tree.pkl", 'rb') as file6:
+        pickle_model_decision_tree = pickle.load(file6)
+    file6.close()
+    with open("pickle_model_capstone_gradient_boosting.pkl", 'rb') as file7:
+        pickle_model_gradient_boosting = pickle.load(file7)
+    file7.close()
+    with open("pickle_model_capstone_svc_rbf.pkl", 'rb') as file1:
+        pickle_model_rbf = pickle.load(file1)
+    file1.close()
+    with open("pickle_model_capstone_svc_poly.pkl", 'rb') as file2:
+        pickle_model_poly = pickle.load(file2)
+    file2.close()
+    with open("pickle_model_capstone_random_forest.pkl", 'rb') as file4:
+        pickle_model_random_forest = pickle.load(file4)
+    file4.close()
 
-    file_predict = pickle_model.predict([predict])
-    if file_predict[0] == 0:
-        print("Capstone Goodware")
-        return 0
-    else:
-        print("Capstone Malware")
-        return 1
 
+    file_predict_rbf = pickle_model_rbf.predict([predict])
+    file_predict_poly = pickle_model_poly.predict([predict])
+    file_predict_random_forest = pickle_model_random_forest.predict([predict])
+    file_predict_decision_tree = pickle_model_decision_tree.predict([predict])
+    file_predict_gradient_boosting = pickle_model_gradient_boosting.predict([predict])
+
+    count_malware = 0
+    if file_predict_rbf[0] == 0:
+        count_malware += 1
+    if file_predict_poly[0] == 0:
+        count_malware += 1
+    if file_predict_gradient_boosting[0] == 0:
+        count_malware += 1
+    if file_predict_random_forest[0] == 0:
+        count_malware += 1
+    if file_predict_decision_tree[0] == 0:
+        count_malware += 1
+    print(str(count_malware) + "/ 7")
+    if count_malware > 2:
+        capstone_success_counter()
 
 
 
@@ -54,7 +87,6 @@ def get_main_code_section(sections, base_of_code):
             # this means we failed to locate it
             return sections[section_addresses.index(base_of_code)]
 
-
 def disassemble(exe):
     # getting the main part of code excluding header
     main_code = get_main_code_section(exe.sections, exe.OPTIONAL_HEADER.BaseOfCode)
@@ -79,7 +111,6 @@ def disassemble(exe):
             return list_of_opcode
             break
 
-
 # inspired by
 # https://isleem.medium.com/create-your-own-disassembler-in-python-pefile-capstone-754f863b2e1c
 def disassembling_analysis(name):
@@ -93,6 +124,19 @@ def disassembling_analysis(name):
         except:
             print('[+] Error occurred while disassembling the file\n')
     except:
-        print("File is of different type than PE")
-        exit()
+        list_of_opcodes = list()
+        with open(file_to_analyze, "rb") as f:
+            output = f.read()
+        md = Cs(CS_ARCH_X86, CS_MODE_64)
+        md.syntax = CS_OPT_SYNTAX_INTEL
+        # disassembling from the begging of file
+        for i in md.disasm(output, 0x00000):
+            #print("0x%x:\t%s\t%s" % (i.address, i.mnemonic, i.op_str))
+            list_of_opcodes.append(i.mnemonic)
+
+
+        return list_of_opcodes
+
+
+
 

@@ -1,9 +1,34 @@
 import os
-from tools.analysis import compare_technique, capstone_technique
 from tools.reveal_file import *
 from machine_learning_caps import *
 from machine_learning_comp import *
-import pandas as pd
+import math
+from collections import Counter
+from scipy import stats
+
+def eta(data, unit='natural'):
+    base = {
+        'shannon': 2.,
+        'natural': math.exp(1),
+        'hartley': 10.
+        }
+    if len(data) <= 1:
+        return 0
+
+    counts = Counter()
+
+    for d in data:
+        counts[d] += 1
+
+    ent = 0
+    probs = [float(c) / len(data) for c in counts.values()]
+    for p in probs:
+        if p > 0.:
+            ent -= p * math.log(p, base[unit])
+    return ent
+
+def entropy(labels):
+    return stats.entropy(list(Counter(labels).values()), base=2)
 
 def tramsform_list_for_prediction(dictionary,length):
     attributes = ['mov','push','call','lea','add','jae','inc','cmp','sub','jmp','dec','shl','pop','xchg','je','jne','xor','test','ret','jo','imul','and','in','jge','outsb','fstp','sbb','adc','jp','insb','other']
@@ -51,20 +76,21 @@ def compare_technique(output):
     dictionary_of_opcode_freq = calculate_freq(list_of_opcodes)
 
     transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq, len_list_opcodes)
-    return comparing_predict(transformed_list)
+    comparing_predict(transformed_list)
 
 def capstone_technique(output):
     list_of_opcodes = disassembling_analysis(output)
     len_list_of_opcodes = len(list_of_opcodes)
+    if len_list_of_opcodes == 0:
+        capstone_success_counter()
+        return
     dictionary_of_opcode_freq = calculate_freq(list_of_opcodes)
 
     transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq,len_list_of_opcodes)
-    return capstone_predict(transformed_list)
+    capstone_predict(transformed_list)
 
 def analyze(file):
-    image = "pure_images/"+file
-    prediction1 = 0
-    prediction2 = 0
+    image = "image_goodware/"+file
     try:
         output = lsb.reveal(image)
         try:
@@ -74,15 +100,19 @@ def analyze(file):
             # writing binary into a file
         except:
             output = bytes(output, 'utf-8')
+
+        # calculate entropy of bytes
+        #print(eta(output))
+        #print(entropy(output))
+
         name = "exctracted/secret_" + file
         # to strip .png
         name = name[:-4]
         with open(name, "wb") as file:
             file.write(output)
         file.close()
-        prediction1 = compare_technique(output)
-        prediction2 = capstone_technique(name)
-        return prediction1,prediction2
+        #compare_technique(output)
+        capstone_technique(name)
 
     except FileNotFoundError:
         print("\n[+] Error, while extracting file!\n")
@@ -91,24 +121,15 @@ if __name__ == "__main__":
     count = 0
     comp = 0
     cap = 0
-    for i in os.listdir("pure_images"):
+    for i in os.listdir("image_goodware"):
         print("["+str(count)+"] "+i)
-        prediction1,prediction2 = analyze(i)
-        if prediction1 == 0:
-            comp += 1
-        if prediction2 == 0:
-            cap += 1
-        print()
+        analyze(i)
         count += 1
 
-    print("Compare opcodes technique")
-    print("Goodware: " + str(comp) + "/30")
-    print("Malware: " + str(30 - comp) + "/30")
-    print()
-    print("Capstone technique")
-    print("Goodware: " + str(cap) + "/30")
-    print("Malware: " + str(30 - cap) + "/30")
-
+capstone_goodware = capstone_success_counter() - 1
+#compare_goodware = comparing_success_counter() - 1
+print("Capstone Goodware ratio: {} / 30".format(capstone_goodware))
+#print("Comparing Goodware ratio: {} / 30".format(compare_goodware))
 
 
 

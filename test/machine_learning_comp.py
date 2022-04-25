@@ -2,20 +2,6 @@ import pickle
 
 import pandas as pd
 
-def comparing_success_counter():
-    if not hasattr(comparing_success_counter,"counter"):
-        comparing_success_counter.counter = 0
-    comparing_success_counter.counter += 1
-    return comparing_success_counter.counter
-
-def comparing_predict(predict):
-    with open("pickle_model_comparing_random_forest.pkl", 'rb') as file:
-        pickle_model = pickle.load(file)
-
-    file_predict = pickle_model.predict([predict])
-    if file_predict[0] == 0:
-        comparing_success_counter()
-
 def opcodes_frequency(output):
     #reading csv file with pandas module
     df = pd.read_csv('opcodes.csv')
@@ -37,5 +23,14 @@ def opcodes_frequency(output):
                 list_of_opcodes.append(opcodes[j])
     return list_of_opcodes
 
+def comparing_predict(predict):
+    with open("pickle_model_comparing.pkl", 'rb') as file:
+        pickle_model = pickle.load(file)
 
-
+    file_predict = pickle_model.predict([predict])
+    if file_predict[0] == 0:
+        print("Comparing Goodware")
+        return 0
+    else:
+        print("Comparing Malware")
+        return 1

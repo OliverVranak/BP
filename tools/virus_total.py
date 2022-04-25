@@ -29,31 +29,33 @@ def VT_hash_scan(file):
         "Accept": "application/json",
         "x-apikey": api_key
                }
-    response = requests.request("GET", url, headers=headers)
-    response = response.text
-    response = json.loads(response)
-    if exists("VirusTotal_report.txt"):
-        os.remove("VirusTotal_report.txt")
-    if "error" in response:
-        print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] File Not found in VirusTotal Database. ")
-    else:
-        malware_count = 0
-        total_count = 0
-        for i in response["data"]["attributes"]["last_analysis_results"]:
-            if response["data"]["attributes"]["last_analysis_results"][i]["category"] != "type-unsupported":
-                if response["data"]["attributes"]["last_analysis_results"][i]["category"] != "failure":
-                    total_count += 1
-                    if response["data"]["attributes"]["last_analysis_results"][i]["category"] != "undetected":
-                        malware_count += 1
+    try:
+        response = requests.request("GET", url, headers=headers)
+        response = response.text
+        response = json.loads(response)
+        if exists("VirusTotal_report.txt"):
+            os.remove("VirusTotal_report.txt")
+        if "error" in response:
+            print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] File Not found in VirusTotal Database. ")
+        else:
+            malware_count = 0
+            total_count = 0
+            for i in response["data"]["attributes"]["last_analysis_results"]:
+                if response["data"]["attributes"]["last_analysis_results"][i]["category"] != "type-unsupported":
+                    if response["data"]["attributes"]["last_analysis_results"][i]["category"] != "failure":
+                        total_count += 1
+                        if response["data"]["attributes"]["last_analysis_results"][i]["category"] != "undetected":
+                            malware_count += 1
 
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] VirusTotal rating: ", malware_count, " / ", total_count)
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Names of the file: ")
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] VirusTotal rating: ", malware_count, " / ",
+                  total_count)
 
-        for i in response["data"]["attributes"]["names"]:
-            print("\t\t",i)
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] For more info please visit this link: ")
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] https://www.virustotal.com/gui/file/{}".format(
+                sha256_hash.hexdigest()))
 
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] For more info please visit this link: ")
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] https://www.virustotal.com/gui/file/{}".format(sha256_hash.hexdigest()))
+    except :
+        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Error occurred while requesting VirusTotal report.")
 
 
 

@@ -1,6 +1,7 @@
 from tools.encode_file import *
 from tools.analysis import *
 from datetime import datetime
+from pyfiglet import Figlet
 
 def switch(choice):
     if choice == 1:
@@ -34,7 +35,9 @@ def start():
             start()
 
 if __name__ == "__main__":
-    print("\n_________ IMAGE SCANNER _________")
+    f = Figlet(font='slant')
+    print("\n")
+    print(f.renderText("IMAGE SCANNER"))
     start()
 
 

@@ -7,6 +7,7 @@ from tools.compare_opcodes import *
 from datetime import datetime
 from os.path import exists
 import struct
+import imghdr
 
 
 def compare_technique(output):
@@ -33,6 +34,9 @@ def analyze():
         print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Image was not found!")
         return
 
+    if imghdr.what(image) != "png":
+        print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Wrong type, please enter PNG image.")
+        return
     print("[*][" + datetime.now().strftime("%H:%M:%S") + "] Extracting...")
     try:
         output = lsb.reveal(image)

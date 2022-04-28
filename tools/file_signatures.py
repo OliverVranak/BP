@@ -1,6 +1,7 @@
 from datetime import datetime
 import filetype
 import struct
+import os
 
 magic_numbers = {
                  'png': bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
@@ -24,7 +25,7 @@ magic_numbers = {
                  'txt': bytes([0xEF, 0xBB, 0xBF]),
                  }
 
-def check_architecture():
+def check_architecture(report):
     IMAGE_FILE_MACHINE_I386 = 332
     IMAGE_FILE_MACHINE_IA64 = 512
     IMAGE_FILE_MACHINE_AMD64 = 34404
@@ -42,57 +43,72 @@ def check_architecture():
             arch = struct.unpack("<H",header)[0]
 
             if arch == IMAGE_FILE_MACHINE_I386:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Architecture: IA-32 (32-bit x86)")
+                report.write("Architecture: IA-32 (32-bit x86)\n")
             elif arch == IMAGE_FILE_MACHINE_IA64:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Architecture: IA-64 (Itanium)")
+                report.write("Architecture: IA-64 (Itanium)\n")
             elif arch == IMAGE_FILE_MACHINE_AMD64:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Architecture: AMD64 (64-bit x86)")
+                report.write("Architecture: AMD64 (64-bit x86)\n")
             elif arch == IMAGE_FILE_MACHINE_ARM:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Architecture: ARM eabi (32-bit)")
+                report.write("Architecture: ARM eabi (32-bit)\n")
             elif arch == IMAGE_FILE_MACHINE_AARCH64:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Architecture: AArch64 (ARM-64, 64-bit)")
+                report.write("Architecture: AArch64 (ARM-64, 64-bit)\n")
             else:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Unknown architecture {}".format(arch))
+                report.write("Architecture: Unknown\n")
 
     file.close()
 
-
 def check_filetype(file):
+    if os.path.exists('report'):
+        os.remove('report')
+    with open("report","a+") as report:
+        report.write("-- IMAGE SCANNER --")
+        report.write('\n\n\n')
+        print("[*][" + datetime.now().strftime("%H:%M:%S") + "] Checking filetype...")
+        possible_file_type = list()
+        # figuring out filetype of extracted file
+        file_type = filetype.guess('secret_file')
+        # checking the architecture of file
+        check_architecture(report)
 
-    print("\n[*][" + datetime.now().strftime("%H:%M:%S") + "] Checking filetype...")
-    possible_file_type = list()
-    # figuring out filetype of extracted file
-    file_type = filetype.guess('secret_file')
-    # checking the architecture of file
-    check_architecture()
+        if file_type is None:
+            report.write("Filetype: Unknown\n")
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Unknown filetype")
+            # library filetype does not contain all extensions
+            # for that reason we run through our dictionary of extensions for possible match
+            for i in magic_numbers:
+                if file.startswith(magic_numbers[i]):
+                    possible_file_type.append(i)
+            # if we found a match it will display it
+            report.write("Possible filetypes: ")
+            if len(possible_file_type) != 0:
+                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Possible File extensions: ", end=" ")
+                for i in possible_file_type:
+                    print(i, end=" ")
+                    report.write(i)
+                print()
+            # no known filetype
+            report.write('\n')
+            if len(possible_file_type) == 0:
+                report.close()
+                return 1
+            elif "ELF" in possible_file_type or "dll" in possible_file_type or "exe" in possible_file_type:
+                report.close()
+                return 1
+            else:
+                report.close()
+                return 0
 
-    if file_type is None:
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Unknown filetype")
-        # library filetype does not contain all extensions
-        # for that reason we run through our dictionary of extensions for possible match
-        for i in magic_numbers:
-            if file.startswith(magic_numbers[i]):
-                possible_file_type.append(i)
-        # if we found a match it will display it
-        if len(possible_file_type) != 0:
-            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Possible File extensions: ", end=" ")
-            for i in possible_file_type:
-                print(i, end=" ")
-            print()
-        # no known filetype
-        if len(possible_file_type) == 0:
-            return 1
-        elif "ELF" in possible_file_type or "dll" in possible_file_type or "exe" in possible_file_type:
-            return 1
         else:
-            return 0
+            report.write("Filetype: {}\n".format(str(file_type.extension)))
+            report.write("FileMIME: {}\n".format(str(file_type.mime)))
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File extension is: " + str(file_type.extension))
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] FileMIME is: " + str(file_type.mime))
 
-    else:
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File extension is: " + str(file_type.extension))
-        print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File MIME type is: " + str(file_type.mime))
-        if str(file_type.extension) == "exe" or str(file_type.extension) == "elf" or str(file_type.extension) == "dll":
-            return 1
-        else:
-            return 0
+            if str(file_type.extension) == "exe" or str(file_type.extension) == "elf" or str(file_type.extension) == "dll":
+                report.close()
+                return 1
+            else:
+                report.close()
+                return 0
 
 

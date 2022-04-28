@@ -1,16 +1,13 @@
 import os
 from datetime import datetime
-import pandas as pd
 import pefile
 from elftools.elf.elffile import ELFFile
 from capstone import *
 from os.path import exists
-import numpy as np
-import matplotlib.pyplot as plt
+
 
 
 def opcodes_frequency_capstone(list_of_opcodes):
-    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] The most frequent opcodes:\n")
     dictionary = dict()
     length = len(list_of_opcodes)
     # counting number of ocurrencies
@@ -25,22 +22,17 @@ def opcodes_frequency_capstone(list_of_opcodes):
     count = 0
     top_10_opcodes = list()
     top_10_percentage = list()
-    for i, j in dic3.items():
-        top_10_opcodes.append(i)
-        top_10_percentage.append(j * 100 / length)
-        print(f"\t{i} : {j * 100 / length}%")
-        count += 1
-        if count == 10:
-            break
-    #creating bar plot to visualize the frequency
-    df = pd.DataFrame({"Opcodes":top_10_opcodes,"Percentage":top_10_percentage})
-    plt.figure(figsize=(10,6))
-    plt.bar('Opcodes','Percentage',data=df)
-    plt.xlabel('Opcodes',size=10)
-    plt.ylabel('Percentage',size=10)
-    plt.title("The most frequent opcodes",size=15)
-    plt.savefig('the_most_frequent_opcodes.png')
-    print("\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Bar plot saved as the_most_frequent_opcodes.png\n")
+    with open('report','a+') as report:
+        report.write('\n-> Full disassemble of file saved as secret_file_disassemble\n')
+        report.write("\nThe most frequent opcodes:\n\n")
+        for i, j in dic3.items():
+            top_10_opcodes.append(i)
+            top_10_percentage.append(j * 100 / length)
+            report.write(f"  {i} : {j * 100 / length} %\n")
+            count += 1
+            if count == 10:
+                break
+    report.close()
     return dic3
 
 # function takes list of file section and the adrres of the first section
@@ -93,7 +85,7 @@ def disassemble(exe):
             list_of_opcode.append(i.mnemonic)
         start = max(int(last_address), start) + last_size + 1
         if start >= end:
-            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble\n")
+            print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble")
             return list_of_opcode
 
 
@@ -137,6 +129,7 @@ def disassembling_analysis(name):
                     list_of_opcodes.append(i.mnemonic)
 
                 print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble\n")
+                f.close()
                 return list_of_opcodes
             # if file is of different type or unknown type
             else:
@@ -152,4 +145,5 @@ def disassembling_analysis(name):
                     file.close()
                     list_of_opcodes.append(i.mnemonic)
                 print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Disassembled version saved as secret_file_disassemble\n")
+                f.close()
                 return list_of_opcodes

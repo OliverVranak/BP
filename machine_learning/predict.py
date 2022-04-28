@@ -11,14 +11,20 @@ def capstone_predict(predict):
 
     with open("machine_learning/pickle_model_capstone_svc_rbf.pkl", 'rb') as file1:
         pickle_model_rbf = pickle.load(file1)
+    file1.close()
     with open("machine_learning/pickle_model_capstone_svc_poly.pkl", 'rb') as file2:
         pickle_model_poly = pickle.load(file2)
+    file2.close()
     with open("machine_learning/pickle_model_capstone_decision_tree.pkl", 'rb') as file3:
         pickle_model_decision_tree = pickle.load(file3)
+    file3.close()
     with open("machine_learning/pickle_model_capstone_random_forest.pkl", 'rb') as file4:
         pickle_model_random_forest = pickle.load(file4)
+    file4.close()
     with open("machine_learning/pickle_model_capstone_gradient_boosting.pkl", 'rb') as file5:
         pickle_model_gradient_boosting = pickle.load(file5)
+    file5.close()
+
 
     file_predict_rbf = pickle_model_rbf.predict([predict])
     file_predict_poly = pickle_model_poly.predict([predict])
@@ -38,10 +44,27 @@ def capstone_predict(predict):
     count_malware = count_malware + 1 if file_predict_poly[0] == 1 else count_malware
     count_malware = count_malware + 1 if file_predict_random_forest[0] == 1 else count_malware
     count_malware = count_malware + 1 if file_predict_gradient_boosting[0] == 1 else count_malware
+
+    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Your file is: ",end=" ")
     if count_malware > 2:
-        print("\n\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Your file is -> UNSAFE <-")
+        print("MALICIOUS")
+        while True:
+            answer = input("[->][" + datetime.now().strftime("%H:%M:%S") + "] Do you want to remove the file (yes/no) ?   ")
+            if answer == "yes" or answer == "Yes" or answer == "YES":
+                try:
+                    os.remove('secret_file')
+                    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File removed!")
+                except:
+                    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Error while removing file!")
+                return
+            elif answer == "no" or answer == "No" or answer == "NO":
+                return
+            else:
+                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Wrong option!")
     else:
-        print("\n\n[+][" + datetime.now().strftime("%H:%M:%S") + "] Your file is -> SAFE <-")
+        print("BENIGN")
+
+
 
 def comparing_predict(predict):
     with open("machine_learning/pickle_model_comparing.pkl", 'rb') as file:

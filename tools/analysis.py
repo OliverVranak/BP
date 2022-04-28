@@ -1,4 +1,4 @@
-from machine_learning.predict import tramsform_list_for_prediction, comparing_predict, capstone_predict
+from machine_learning.predict import transform_list_for_prediction, comparing_predict, capstone_predict
 from tools.reveal_file import *
 from tools.virus_total import *
 from tools.file_signatures import *
@@ -15,8 +15,9 @@ def compare_technique(output):
     dictionary_of_opcode_freq = calculate_freq(list_of_opcodes)
 
     print("[*] Predicting...")
-    transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq, len_list_opcodes)
+    transformed_list = transform_list_for_prediction(dictionary_of_opcode_freq, len_list_opcodes)
     comparing_predict(transformed_list)
+
 
 def capstone_technique(output):
     list_of_opcodes = disassembling_analysis(output)
@@ -24,8 +25,9 @@ def capstone_technique(output):
     dictionary_of_opcode_freq = opcodes_frequency_capstone(list_of_opcodes)
 
     print("[*][" + datetime.now().strftime("%H:%M:%S") + "] Predicting...")
-    transformed_list = tramsform_list_for_prediction(dictionary_of_opcode_freq,len_list_of_opcodes)
+    transformed_list = transform_list_for_prediction(dictionary_of_opcode_freq, len_list_of_opcodes)
     capstone_predict(transformed_list)
+
 
 def analyze():
     image = input("\n[->] Enter picture: ")
@@ -38,6 +40,7 @@ def analyze():
         return
     print("[*][" + datetime.now().strftime("%H:%M:%S") + "] Extracting...")
     try:
+
         output = lsb.reveal(image)
         try:
             output += "==="

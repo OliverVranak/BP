@@ -1,7 +1,6 @@
 import os
 import pickle
 from datetime import datetime
-
 from machine_learning.train_model import capstone_machine_learning
 
 
@@ -25,7 +24,6 @@ def capstone_predict(predict):
         pickle_model_gradient_boosting = pickle.load(file5)
     file5.close()
 
-
     file_predict_rbf = pickle_model_rbf.predict([predict])
     file_predict_poly = pickle_model_poly.predict([predict])
     file_predict_decision_tree = pickle_model_decision_tree.predict([predict])
@@ -48,22 +46,8 @@ def capstone_predict(predict):
     print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Your file is: ",end=" ")
     if count_malware > 2:
         print("MALICIOUS")
-        while True:
-            answer = input("[->][" + datetime.now().strftime("%H:%M:%S") + "] Do you want to remove the file (yes/no) ?   ")
-            if answer == "yes" or answer == "Yes" or answer == "YES":
-                try:
-                    os.remove('secret_file')
-                    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] File removed!")
-                except:
-                    print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Error while removing file!")
-                return
-            elif answer == "no" or answer == "No" or answer == "NO":
-                return
-            else:
-                print("[+][" + datetime.now().strftime("%H:%M:%S") + "] Wrong option!")
     else:
         print("BENIGN")
-
 
 
 def comparing_predict(predict):
@@ -77,7 +61,8 @@ def comparing_predict(predict):
         print("[->] Malware")
     print(file_predict)
 
-def tramsform_list_for_prediction(dictionary,length):
+
+def transform_list_for_prediction(dictionary, length):
     attributes = ['mov','push','call','lea','add','jae','inc','cmp','sub','jmp','dec','shl','pop','xchg','je','jne','xor','test','ret','jo','imul','and','in','jge','outsb','fstp','sbb','adc','jp','insb','other']
     values = list()
     sum = 0

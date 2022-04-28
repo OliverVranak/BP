@@ -54,7 +54,6 @@ def check_architecture(report):
                 report.write("Architecture: AArch64 (ARM-64, 64-bit)\n")
             else:
                 report.write("Architecture: Unknown\n")
-
     file.close()
 
 def check_filetype(file):

@@ -6,6 +6,7 @@ It is necessary to have Python 3.x and installed below stated libraries.
 * pip install pefile
 * pip install pyelftools
 * pip install pyfiglet
+* pip install capstone
 -----------------------------------------------------
 
 ### Testing
